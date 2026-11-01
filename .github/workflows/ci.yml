@@ -1,0 +1,68 @@
+name: CI Static Validation Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [master, main]
+
+jobs:
+  validate:
+    name: HTML & JS Static Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run HTML & JS Validation
+        id: run_checks
+        run: |
+          set -o pipefail
+          mkdir -p logs
+          ERROR_LOG="logs/error.log"
+          touch "$ERROR_LOG"
+          FAILED=0
+
+          echo "=== [1/2] JavaScript Syntax Check ===" | tee -a "$ERROR_LOG"
+          if [ -d "js" ]; then
+            for f in js/*.js; do
+              if [ -f "$f" ]; then
+                node -c "$f" 2>&1 | tee -a "$ERROR_LOG" || FAILED=1
+              fi
+            done
+          fi
+
+          echo "=== [2/2] HTML Validation ===" | tee -a "$ERROR_LOG"
+          npx --yes htmlhint "**/*.html" 2>&1 | tee -a "$ERROR_LOG" || FAILED=1
+
+          if [ $FAILED -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Post Failure Log on Pull Request
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          COMMENT_BODY="## ❌ CI 검증 실패 리포트\n\n정적 검증(HTML/JS 문법 검사)에서 오류가 발견되었습니다.\n\n\`\`\`text\n$(cat logs/error.log | head -n 40)\n\`\`\`\n\n> 🤖 **Antigravity 멀티에이전트**: 위 오류를 수정한 뒤 커밋을 푸시해 주세요."
+          gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY" || true
+          gh pr edit "$PR_NUMBER" --add-label "qa-failed" || true
+
+      - name: Mark PR as QA Passed
+        if: success() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr edit "$PR_NUMBER" --remove-label "qa-failed" --add-label "qa-passed" || true

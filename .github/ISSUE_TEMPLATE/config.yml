@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "질문 및 자유 문의"
+    url: "https://github.com/klcho/galaxy-s25-landing/discussions"
+    about: "일반 질문이나 토론은 Discussions를 이용해 주세요."
