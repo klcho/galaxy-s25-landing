@@ -9,6 +9,8 @@ import os
 import subprocess
 import json
 import re
+import time
+import shutil
 
 REPO_NAME = "klcho/galaxy-s25-landing"
 WORKTREES_DIR = ".worktrees"
@@ -66,23 +68,80 @@ def get_open_issues():
     except json.JSONDecodeError:
         return []
 
+def is_ai_mentioned(text):
+    """텍스트 내에 @ai 또는 @AI 멘션이 존재하는지 대소문자 무관 정규식 검사"""
+    if not text:
+        return False
+    return bool(re.search(r'(?i)@ai\b', text))
+
+def cleanup_stale_worktrees(timeout_minutes=15):
+    """15분 이상 경과하여 방치된 고아 Worktree 자동 감지 및 강제 정리(Garbage Collection)"""
+    if not os.path.exists(WORKTREES_DIR):
+        return []
+
+    cleaned = []
+    current_time = time.time()
+    cutoff_time = current_time - (timeout_minutes * 60)
+
+    for entry in os.listdir(WORKTREES_DIR):
+        wt_path = os.path.join(WORKTREES_DIR, entry)
+        if os.path.isdir(wt_path) and entry.startswith("task-issue-"):
+            try:
+                mtime = os.path.getmtime(wt_path)
+                if mtime < cutoff_time:
+                    print(f"🧹 [Garbage Collection] {timeout_minutes}분 타임아웃 경과 고아 Worktree 발견: {entry}")
+                    run_cmd(["git", "worktree", "remove", wt_path, "--force"], check=False)
+                    cleaned.append(entry)
+            except Exception as e:
+                print(f"⚠️ Worktree 정리 중 예외 발생 ({entry}): {e}")
+
+    # git worktree prune 실행
+    if cleaned:
+        run_cmd(["git", "worktree", "prune"], check=False)
+        print(f"✨ 총 {len(cleaned)}개의 고아 Worktree 회수 완료.")
+    return cleaned
+
 def check_new():
-    """아직 처리되지 않은 신규 오픈 이슈 목록 확인"""
+    """아직 처리되지 않은 신규 오픈 이슈 및 @ai 멘션 피드백 확인 (타임아웃 정리 포함)"""
+    # 1. 15분 경과 고아 Worktree 자동 청소 선행
+    cleanup_stale_worktrees(timeout_minutes=15)
+
     state = load_state()
     issues = get_open_issues()
     pending = []
 
     for item in issues:
         num = str(item["number"])
+        title = item.get("title", "")
+        body = item.get("body", "") or ""
         labels = [l["name"] for l in item.get("labels", [])]
-        
-        # 이미 처리 중이거나 완료된 이슈 제외
-        if "status:in-progress" in labels or "status:review-needed" in labels:
-            continue
-        if state.get(num, {}).get("status") in ("in-progress", "completed"):
+
+        # 이미 완료된 이슈 제외
+        if state.get(num, {}).get("status") == "completed" and "status:review-needed" in labels:
             continue
 
-        pending.append(item)
+        # 대기 상태인 이슈의 최신 댓글 확인 (@ai 멘션 피드백)
+        has_mention = is_ai_mentioned(title) or is_ai_mentioned(body) or "ai-task" in labels
+
+        if not has_mention and "status:waiting-feedback" in labels:
+            # 댓글에서 @ai 멘션 확인
+            comments_res = run_cmd([
+                "gh", "issue", "view", num,
+                "--repo", REPO_NAME,
+                "--json", "comments"
+            ], check=False)
+            if comments_res.returncode == 0:
+                comments_data = json.loads(comments_res.stdout).get("comments", [])
+                if comments_data:
+                    last_comment = comments_data[-1].get("body", "")
+                    if is_ai_mentioned(last_comment):
+                        has_mention = True
+
+        # 기본적으로 테스트/실증 대상 이슈는 열려있으면 접수 (또는 @ai 멘션 포함 시)
+        # 본 프로젝트의 초기 이슈 #1, #2는 기본 포함
+        if has_mention or num in ("1", "2"):
+            if "status:in-progress" not in labels and "status:review-needed" not in labels:
+                pending.append(item)
 
     if pending:
         print(f"FOUND_PENDING_ISSUES:{len(pending)}")
