@@ -23,4 +23,5 @@
 
 | 이슈 번호 | 작업 제목 | 담당 에이전트 팀 | PR 링크 | 최종 결과 | 완료 일시 |
 |---|---|---|---|:---:|---|
-| **#1** | 배경 바꾸기 (검정 → 화이트) | 4대 에이전트 팀 | [PR #3](https://github.com/klcho/galaxy-s25-landing/pull/3) | ✅ 성공 (QA 통과) | 2026-11-01 19:40 |
+| **#1** | 배경 바꾸기 (검정 → 화이트) | 4대 에이전트 팀 | [PR #3](https://github.com/klcho/galaxy-s25-landing/pull/3) | ✅ 성공 (Merged & Closed) | 2026-11-01 19:40 |
+| **#2** | Premium Elegance 문구 한국어로 변경 | 4대 에이전트 팀 | [PR #5](https://github.com/klcho/galaxy-s25-landing/pull/5) | ✅ 성공 (QA 통과, 리뷰 대기) | 2026-11-01 21:06 |
