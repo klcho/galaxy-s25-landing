@@ -1,0 +1,15 @@
+# Git Worktrees 격리 작업 공간
+.worktrees/
+worktrees/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Node / Logs / Python
+node_modules/
+*.log
+__pycache__/
+*.py[cod]
