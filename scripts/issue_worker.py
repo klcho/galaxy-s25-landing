@@ -123,7 +123,7 @@ def check_new():
         # 대기 상태인 이슈의 최신 댓글 확인 (@ai 멘션 피드백)
         has_mention = is_ai_mentioned(title) or is_ai_mentioned(body) or "ai-task" in labels
 
-        if not has_mention and "status:waiting-feedback" in labels:
+        if not has_mention:
             # 댓글에서 @ai 멘션 확인
             comments_res = run_cmd([
                 "gh", "issue", "view", num,
@@ -131,11 +131,14 @@ def check_new():
                 "--json", "comments"
             ], check=False)
             if comments_res.returncode == 0:
-                comments_data = json.loads(comments_res.stdout).get("comments", [])
-                if comments_data:
-                    last_comment = comments_data[-1].get("body", "")
-                    if is_ai_mentioned(last_comment):
-                        has_mention = True
+                try:
+                    comments_data = json.loads(comments_res.stdout).get("comments", [])
+                    for comment in reversed(comments_data):
+                        if is_ai_mentioned(comment.get("body", "")):
+                            has_mention = True
+                            break
+                except json.JSONDecodeError:
+                    pass
 
         # 기본적으로 테스트/실증 대상 이슈는 열려있으면 접수 (또는 @ai 멘션 포함 시)
         # 본 프로젝트의 초기 이슈 #1, #2는 기본 포함
