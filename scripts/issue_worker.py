@@ -361,12 +361,55 @@ Closes #{issue_number}
     print(f"✅ [#이슈 {issue_number} 완료] {message}")
     print(f"🔗 PR 링크: {pr_url}")
     print(f"📄 상세 리포트: [{report_file_path}](file:///{abs_report_path})")
+    
+    # [연속 처리 큐 확인] 남은 대기 이슈 자동 탐지
+    remaining = check_new()
+    if remaining:
+        next_item = remaining[0]
+        print(f"🔔 [다음 대기 이슈 감지] #{next_item['number']}: {next_item['title']}")
+        print(f"👉 'python scripts/issue_worker.py start {next_item['number']}' 로 즉시 이어서 진행 가능합니다.")
+    else:
+        print("✨ 모든 대기 이슈 처리가 완료되었습니다.")
     print("="*50 + "\n")
+
+def run_auto_pipeline():
+    """사용자 시나리오 고정 설계: 대기 큐의 모든 이슈를 순차적으로 자동 소진(Drain Queue)하는 메인 루프"""
+    print("🔄 [Antigravity 자율 파이프라인 가동] 대기 이슈 확인 중...")
+    pending = check_new()
+    if not pending:
+        print("✨ 대기 중인 이슈가 없습니다. 시스템이 대기 상태를 유지합니다.")
+        return
+
+    print(f"🎯 총 {len(pending)}개의 이슈가 감지되었습니다. 순차적 자율 처리를 시작합니다.\n")
+    
+    for item in pending:
+        num = item["number"]
+        title = item.get("title", "")
+        body = item.get("body", "") or ""
+        print(f"\n{'='*60}")
+        print(f"▶️ [파이프라인 시작] 이슈 #{num}: {title}")
+        print(f"{'='*60}")
+
+        # 1. Start: Worktree 격리 생성 및 상태 선점 락 획득
+        start_task(num)
+
+        # 2. Spec 명세서 생성
+        os.makedirs("_workspace", exist_ok=True)
+        spec_path = os.path.join("_workspace", "spec.md")
+        with open(spec_path, "w", encoding="utf-8") as sf:
+            sf.write(f"# 📋 작업 명세서 (Auto-Generated) - Issue #{num}\n\n* **제목**: {title}\n* **요구사항**: {body.strip()}\n")
+        print(f"📄 명세서 생성 완료: {spec_path}")
+
+        # 3. 사용자 및 에이전트 작업 안내
+        wt_path = os.path.join(WORKTREES_DIR, f"task-issue-{num}")
+        print(f"👉 격리 Worktree ({wt_path})에서 코드 수정 및 검증을 진행하십시오.")
+        break  # 단건 완료 후 다음 루프로 연계하도록 1건씩 안전 제어
 
 def main():
     if len(sys.argv) < 2:
         print("사용법:")
         print("  python scripts/issue_worker.py check               - 미처리 신규 이슈 확인")
+        print("  python scripts/issue_worker.py auto                - 대기 이슈 자동 수주 및 파이프라인 가동")
         print("  python scripts/issue_worker.py start <이슈번호>     - 격리 Worktree 생성 및 이슈 수주")
         print("  python scripts/issue_worker.py complete <이슈번호> [설명] - 커밋, 푸시, PR 발행 및 정리")
         sys.exit(0)
@@ -374,6 +417,8 @@ def main():
     cmd = sys.argv[1].lower()
     if cmd == "check":
         check_new()
+    elif cmd == "auto":
+        run_auto_pipeline()
     elif cmd == "start" and len(sys.argv) >= 3:
         start_task(sys.argv[2])
     elif cmd == "complete" and len(sys.argv) >= 3:
