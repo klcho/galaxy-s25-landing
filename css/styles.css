@@ -1,12 +1,12 @@
 :root {
-    --bg-color: #030305;
-    --text-main: #f8f9fa;
-    --text-muted: #a1a3af;
+    --bg-color: #ffffff;
+    --text-main: #121316;
+    --text-muted: #5e6270;
     --accent-color: #8c52ff;
     --accent-secondary: #00d2ff;
     --accent-glow: rgba(140, 82, 255, 0.4);
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.05);
+    --glass-bg: rgba(0, 0, 0, 0.03);
+    --glass-border: rgba(0, 0, 0, 0.08);
     --transition-standard: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
@@ -52,7 +52,7 @@ body {
 }
 
 .navbar.scrolled {
-    background: rgba(3, 3, 5, 0.8);
+    background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--glass-border);
     padding: 15px 8%;
@@ -62,7 +62,7 @@ body {
     font-weight: 900;
     font-size: 1.6rem;
     letter-spacing: 3px;
-    background: linear-gradient(to right, #fff, #a1a3af);
+    background: linear-gradient(to right, #111116, #5e6270);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -114,8 +114,8 @@ body {
 
 .cta-btn.small {
     padding: 10px 24px;
-    background: #fff;
-    color: #000;
+    background: #111116;
+    color: #ffffff;
     font-size: 0.9rem;
 }
 
@@ -141,7 +141,7 @@ body {
     padding: 16px 36px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
-    color: #fff;
+    color: #121316;
     font-size: 1.1rem;
     backdrop-filter: blur(10px);
 }
@@ -205,7 +205,7 @@ body {
     font-weight: 900;
     letter-spacing: -2px;
     margin-bottom: 15px;
-    background: linear-gradient(135deg, #fff 0%, #a1a3af 100%);
+    background: linear-gradient(135deg, #111116 0%, #5e6270 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -252,7 +252,7 @@ body {
 .mouse {
     width: 30px;
     height: 50px;
-    border: 2px solid #fff;
+    border: 2px solid #333;
     border-radius: 20px;
     display: flex;
     justify-content: center;
@@ -262,7 +262,7 @@ body {
 .wheel {
     width: 4px;
     height: 8px;
-    background: #fff;
+    background: #333;
     border-radius: 4px;
     animation: scroll 1.5s infinite;
 }
@@ -303,8 +303,9 @@ body {
 }
 
 .glass-card {
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
     border-radius: 24px;
     padding: 40px 30px;
     backdrop-filter: blur(20px);
@@ -428,7 +429,7 @@ body {
 
 /* Footer */
 footer {
-    background: #000;
+    background: #f8f9fa;
     padding: 60px 5%;
     border-top: 1px solid var(--glass-border);
 }
@@ -447,7 +448,7 @@ footer {
     font-size: 1.5rem;
     letter-spacing: 2px;
     margin-bottom: 20px;
-    color: #444;
+    color: #111116;
 }
 
 .footer-links {
@@ -464,7 +465,7 @@ footer {
 }
 
 .footer-links a:hover {
-    color: #fff;
+    color: #111116;
 }
 
 footer p {
