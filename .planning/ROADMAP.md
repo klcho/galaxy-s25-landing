@@ -22,6 +22,10 @@
   3. `{{REPO_NAME}}` 치환 및 `.gitignore` 안전 병합이 정상 수행됨
 **Plans**: 2 plans
 
+Plans:
+- [ ] 01-01: 자립형 표준 템플릿 번들 구축
+- [ ] 01-02: 환경 자동 감지 및 스마트 주입 엔진 개발
+
 ### Phase 2: 원격 GitHub 프로비저닝 및 전역 SKILL.md 배포
 **Goal**: GitHub CLI를 통한 필수 라벨 4종 자동 등록, 초기 git commit & push 연동, 그리고 전역 호출용 SKILL.md 정의
 **Depends on**: Phase 1
