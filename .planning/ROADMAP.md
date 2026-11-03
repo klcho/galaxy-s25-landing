@@ -6,7 +6,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: 자립형 템플릿 번들링 및 코어 스캐폴딩 엔진 구현** - templates/ 디렉토리 구축 및 scaffold.py 개발
+- [x] **Phase 1: 자립형 템플릿 번들링 및 코어 스캐폴딩 엔진 구현** - templates/ 디렉토리 구축 및 scaffold.py 개발
 - [ ] **Phase 2: 원격 GitHub 프로비저닝 및 전역 SKILL.md 배포** - 라벨 자동 생성, git commit/push 연동 및 SKILL.md 완성
 - [ ] **Phase 3: 무결성 검증 및 Dry-run 테스트** - 단위 테스트 및 가상 타 프로젝트 주입 시뮬레이션
 
@@ -23,8 +23,8 @@
 **Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: 자립형 표준 템플릿 번들 구축
-- [ ] 01-02: 환경 자동 감지 및 스마트 주입 엔진 개발
+- [x] 01-01: 자립형 표준 템플릿 번들 구축
+- [x] 01-02: 환경 자동 감지 및 스마트 주입 엔진 개발
 
 ### Phase 2: 원격 GitHub 프로비저닝 및 전역 SKILL.md 배포
 **Goal**: GitHub CLI를 통한 필수 라벨 4종 자동 등록, 초기 git commit & push 연동, 그리고 전역 호출용 SKILL.md 정의
@@ -49,6 +49,6 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. 자립형 템플릿 번들링 및 코어 스캐폴딩 엔진 구현 | 0/2 | In progress | - |
+| 1. 자립형 템플릿 번들링 및 코어 스캐폴딩 엔진 구현 | 2/2 | Completed | 2026-11-03 |
 | 2. 원격 GitHub 프로비저닝 및 전역 SKILL.md 배포 | 0/1 | Not started | - |
 | 3. 무결성 검증 및 Dry-run 테스트 | 0/1 | Not started | - |
